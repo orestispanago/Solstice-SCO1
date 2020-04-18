@@ -1,0 +1,38 @@
+- sun: 
+    dni: 1
+
+- entity:
+    name: reflector
+    primary: 1
+    transform:
+      rotation: [0, 0, 90]
+      translation: [0, 0, 0]
+    geometry:
+    - material:
+        back:
+          mirror: {reflectivity: 1.0, slope_error: 0}
+        front:
+          mirror: {reflectivity: 1.0, slope_error: 0}
+      stl:
+        path: /home/orestis/Shared/Drafts/Solstice-SCO1/geometry/SCO1_CPC_thinm.stl
+- entity:
+    name: target
+    primary: 0
+    transform:
+      rotation: [90, 0, 90]
+      translation: [0, 0, 0]
+    geometry:
+    - material:
+        back:
+          matte: {reflectivity: 0}
+        front:
+          matte: {reflectivity: 0}
+      plane:
+        slices: 20
+        clip:
+        - operation: AND
+          vertices:
+          - [0, 0]
+          - [0, 280]
+          - [1500, 280]
+          - [1500, 0]
