@@ -1,15 +1,10 @@
-import pandas as pdS
+import pandas as pd
+from traces import Transversal
 
+transversal = Transversal(135,225,1,10000)
+transversal.run()
 
 df = pd.read_csv("raw/transversal.txt",sep='\s+',names=range(47))
-
-
-# # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-# # output = proc.stdout.read()
-# # s=str(output,'utf-8')
-# # data = StringIO(s) 
-
-# # df=pd.read_csv(data,sep='\s+',names=range(47))
 
 
 angle = df.loc[0::12,3].values
