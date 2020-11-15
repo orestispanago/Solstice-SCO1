@@ -23,10 +23,11 @@
       translation: [0, 0, 0]
     geometry:
     - material:
-        back:
-          matte: {reflectivity: 0}
-        front:
-          matte: {reflectivity: 0}
+        virtual:
+        # back:
+        #   matte: {reflectivity: 0}
+        # front:
+        #   matte: {reflectivity: 0}
       plane:
         slices: 20
         clip:

@@ -1,0 +1,29 @@
+- sun: {dni: 1000}
+
+- entity: # Receiver
+    name: square_receiver
+    primary: 0
+    transform: { rotation: [0,90,0], translation: [-4,0,0] }
+    geometry:
+    - material: {matte: {reflectivity: 0}}
+      plane:
+        clip:
+        - operation: AND
+          vertices: [[-.5,-.5],[-.5,.5],[.5,.5],[.5,-.5]]
+
+- entity:
+    name: parabol
+    transform: {translation: [0, 0, 0], rotation: [0, -90, 0]}
+    primary: 1
+    geometry:
+    - material: 
+        back:
+          mirror: {reflectivity: 1.0, slope_error: 0}
+        front:
+          mirror: {reflectivity: 1.0, slope_error: 0}
+      parabol:
+        focal: 4
+        clip:
+        - operation: AND
+          vertices: [[-5,-5],[-5,5],[5,5],[5,-5]]
+

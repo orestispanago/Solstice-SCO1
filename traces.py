@@ -6,9 +6,9 @@ import subprocess
 
 exp_dir = os.path.join(os.getcwd(),'raw')
 geom_dir = os.path.join(os.getcwd(),"geometry")
-geometry = os.path.join(geom_dir,"geometry_my_stl_aux.yaml") # Path needs to be set in file
+geometry = os.path.join(geom_dir,"geometry_my_stl_transparent.yaml") # Path needs to be set in file
 receiver = os.path.join(geom_dir,"receiver.yaml") 
-exp_shapes_dir = os.path.join(os.getcwd(),"export-shapes")
+exp_shapes_dir = os.path.join(os.getcwd(),"export-shapes", "geometry_my_stl_transparent")
 
 
 
@@ -33,7 +33,7 @@ class Trace():
                 subprocess.run(cmd,stdout=f)
     
     def export_vtk(self,nrays=100):
-        for pair in [self.angle_pairs[0],self.angle_pairs[-1]]:
+        for pair in [self.angle_pairs[45],self.angle_pairs[-1]]:
             fname = f"{self.name}_{pair[:3]}.vtk"
             vtkpath = os.path.join(exp_shapes_dir,fname)
             cmd = f'solstice  -n {nrays} -p default -t1 -D {pair} -R {receiver} {geometry}'.split()
