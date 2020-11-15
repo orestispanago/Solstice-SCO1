@@ -9,12 +9,12 @@
       translation: [0, 0, 0]
     geometry:
     - material:
-        back:
-          mirror: {reflectivity: 1.0, slope_error: 0}
-        front:
+        # back:
+        #   mirror: {reflectivity: 1.0, slope_error: 0}
+        # front:
           mirror: {reflectivity: 1.0, slope_error: 0}
       stl:
-        path: geometry/SCO1_CPC_thinm.stl
+        path: geometries/SCO1_CPC_thinm.stl
 - entity:
     name: target
     primary: 0
@@ -33,6 +33,25 @@
         - operation: AND
           vertices:
           - [0, 0]
-          - [0, 270]
-          - [1500, 270]
+          - [0, 280]
+          - [1500, 280]
+          - [1500, 0]
+
+- entity:
+    name: aux
+    primary: 1
+    transform:
+      rotation: [0, 90, 0]
+      translation: [-280, -328, 1500]
+    geometry:
+    - material: 
+        virtual:
+      plane:
+        slices: 20
+        clip:
+        - operation: AND
+          vertices:
+          - [0, 0]
+          - [0, 656]
+          - [1500, 656]
           - [1500, 0]

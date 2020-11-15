@@ -1,63 +1,93 @@
-import pandas as pd
-from traces import Transversal
 import os
-import glob
 import matplotlib.pyplot as plt
+import seaborn as sns
+from run import transversal_traces
+import reader
+import utils
 
-def mkdir_if_not_exists(dirname):
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
+sns.set_theme()
+
+params = {'figure.figsize': (14, 4),
+          'axes.titlesize': 20,
+          'axes.titleweight': 'bold',
+          'axes.labelsize': 20,
+          'axes.labelweight': 'bold',
+          'xtick.labelsize': 20,
+          'ytick.labelsize': 20,
+          'font.weight' : 'bold',
+          'font.size': 20,
+          'legend.fontsize': 16,
+          'savefig.format': 'png',
+          # 'savefig.dpi': 300.0,
+          'figure.constrained_layout.use': True}
+plt.rcParams.update(params)
+
+def get_label(string):
+    if string.isupper():
+        return string
+    return string.title().replace("_"," ")
+
+def plot_geometries_quantity(df_list, quantity="efficiency"):
+    """ Plots a column of each dataframe """
+    ylabel = get_label(quantity)
+    fig, ax = plt.subplots(figsize=(9,6))
+    for df in df_list:
+        ax.plot(df[quantity], label=df.trace_geometry)
+        ax.set_xlabel("$\\theta_z \quad  (\degree)$")
+        ax.set_ylabel(get_label(quantity))
+        if contains_flux_or_losses([quantity]):
+            ylabel = ylabel + " (W)"
+        ax.set_ylabel(ylabel)
+    ax.legend()
+    fig.savefig(f"comparison-plots/{df.trace_direction}-{quantity}")
+    plt.show()
 
 
-columns = {"potential_flux": 2,
-           "absorbed_flux": 3,
-           "cos_factor": 4,
-           "shadow_losses": 5,
-           "missing_losses": 6,
-           "reflectivity_losses": 7,
-           "absorptivity_losses": 8
-           }
+def plot_heatmap(trace, values='efficiency'):
+    df = reader.read_mean(trace)
+    pic_path = os.path.join(trace.exp_dir, "heatmaps", trace.name)
+    utils.mkdir_if_not_exists(os.path.dirname(pic_path))
+    df1 = df.pivot(index='abs_y', columns='abs_x', values=values)
+    fig, ax = plt.subplots(figsize=(10,7))  
+    sns.heatmap(df1, cbar_kws={'label': 'efficiency'},
+                xticklabels=10, yticklabels=10)
+    plt.title(trace.title)
+    plt.savefig(pic_path)
+    plt.show()
 
-
-transversal = Transversal(135,225,1,10000)
-transversal.run()
-transversal.export_vtk()
-transversal.export_obj()
-
-txtfiles = glob.glob('raw/*.txt')
-
-df = pd.read_csv(txtfiles[0],sep='\s+',names=range(47))
-fname = os.path.basename(txtfiles[0]).split(".")[0]
-
-def calc_intercept_factor(df):
-    df["intercept_factor"] = df["absorbed_flux"]/ (df["potential_flux"] * df["cos_factor"])
- 
-
-
-df = pd.read_csv(txtfiles[0], sep='\s+', names=range(47))
-trace_df = df.loc[df[1] == 'Sun', [3]]  # set 4 for longitudinal
-trace_df.columns = ["angle"]
-trace_df["efficiency"] = df.loc[df[0] == 'target', [23]].values  # Overall effficiency, add [23,24] for error
-for key in columns.keys():
-    trace_df[key] = df[0].iloc[trace_df.index + columns.get(key)].astype('float').values
-trace_df = trace_df.set_index("angle")
-calc_intercept_factor(trace_df)
-
-
+def contains_flux_or_losses(main_str_list, substr_list=["flux", "losses"]):
+    for m in main_str_list:
+        for s in substr_list:
+            if s in m:
+                return True
+    return False
 
 def plot_geometry_quantities(df, quantities_list):
     """ Plots list of df columns in same plot """
+    pic_path = os.path.join(os.getcwd(), "export", df.trace_geometry, "plots", 
+                        df.trace_direction,'-'.join(quantities_list))
+    utils.mkdir_if_not_exists(os.path.dirname(pic_path))
     fig, ax = plt.subplots(figsize=(9,6))
     for col in quantities_list:        
-        ax.plot(df[col], label=col)
+        ax.plot(df[col], label=get_label(col))
     ax.set_xlabel("$\\theta_z \quad  (\degree)$")
+    if contains_flux_or_losses(quantities_list):
+        ax.set_ylabel("Watts")
     ax.legend()
+    plt.savefig(pic_path)
     plt.show()
     
 def plot_all_quantities(df):
     for i in df.columns:
         plot_geometry_quantities(df, [i])
 
+tr_df_list = [reader.read(tr) for tr in transversal_traces]
 
-# plot_all_quantities(trace_df)
-plot_geometry_quantities(trace_df, ["missing_losses"])
+my_trace = tr_df_list[0].copy()
+my_trace.trace_geometry = "real-virtual"
+my_trace.trace_direction = "Transversal"
+def substract_cols(df, col):
+    df[col] = tr_df_list[1][col] - tr_df_list[0][col]
+substract_cols(my_trace, "absorbed_flux")
+
+plot_geometries_quantity([*tr_df_list, my_trace], quantity="efficiency")

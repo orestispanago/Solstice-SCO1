@@ -5,7 +5,7 @@
     name: reflector
     primary: 1
     transform:
-      rotation: [0, 0, 90]
+      rotation: [0, 0, 0]
       translation: [0, 0, 0]
     geometry:
     - material:
@@ -14,20 +14,19 @@
         front:
           mirror: {reflectivity: 1.0, slope_error: 0}
       stl:
-        path: geometry/SCO1_CPC_thinm.stl
+        path: geometries/SCO1_CPC_thinm.stl
 - entity:
-    name: target
+    name: absorber
     primary: 0
     transform:
-      rotation: [90, 0, 90]
+      rotation: [0, -90, 0]
       translation: [0, 0, 0]
     geometry:
     - material:
-        virtual:
-        # back:
-        #   matte: {reflectivity: 0}
-        # front:
-        #   matte: {reflectivity: 0}
+        back:
+          matte: {reflectivity: 0}
+        front:
+          matte: {reflectivity: 0}
       plane:
         slices: 20
         clip:
