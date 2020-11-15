@@ -83,11 +83,19 @@ def plot_all_quantities(df):
 
 tr_df_list = [reader.read(tr) for tr in transversal_traces]
 
-my_trace = tr_df_list[0].copy()
+my_trace = tr_df_list[1].copy()
 my_trace.trace_geometry = "real-virtual"
 my_trace.trace_direction = "Transversal"
-def substract_cols(df, col):
-    df[col] = tr_df_list[1][col] - tr_df_list[0][col]
-substract_cols(my_trace, "absorbed_flux")
 
-plot_geometries_quantity([*tr_df_list, my_trace], quantity="efficiency")
+my_trace["potential_flux"] = tr_df_list[1]["potential_flux"] - tr_df_list[0]["missing_losses"] - tr_df_list[0]["shadow_losses"]
+my_trace["shadow_losses"] = 0 #tr_df_list[1]["shadow_losses"] - tr_df_list[0]["shadow_losses"]
+# my_trace["missing_losses"] = 0
+my_trace["absorbed_flux"] = my_trace["potential_flux"]* my_trace["cos_factor"] - my_trace["shadow_losses"] - my_trace["missing_losses"]
+my_trace["efficiency"] = my_trace["absorbed_flux"] / my_trace["potential_flux"]
+reader.calc_intercept_factor(my_trace)
+
+# plot_geometries_quantity([*tr_df_list, my_trace], quantity="intercept_factor")
+# plot_geometries_quantity([*tr_df_list, my_trace], quantity="efficiency")
+
+for i in my_trace.columns:
+    plot_geometries_quantity([*tr_df_list, my_trace], quantity=i)
